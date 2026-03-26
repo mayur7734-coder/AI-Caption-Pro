@@ -84,6 +84,19 @@
     });
   }
 
+  // Phase 2: import word timings into Premiere
+  function importWordTimingsToPremiere(wordTimingsPath) {
+    return new Promise((resolve, reject) => {
+      postToHost(`AI_Caption_Pro.importWordTimings('${wordTimingsPath}')`, function(res) {
+        if (res && !res.startsWith('ERROR')) {
+          resolve(res);
+        } else {
+          reject(new Error(res || 'Word timings import failed'));
+        }
+      });
+    });
+  }
+
   function onGenerate() {
     setStatus('Detecting sequence...');
     showLoader(true);
@@ -101,14 +114,15 @@
         })
         .then((transcript) => {
           // transcript contains paths to outputs (json, srt) or the payload itself
-          const srtPath = transcript?.srtPath || transcript?.srtPath || transcript?.srt || (transcript && transcript.jsonPath ? transcript.jsonPath : null);
-          // If the Python script returned a full payload, try to grab srtPath
-          const resolvedSrt = (typeof srtPath === 'string' && srtPath) ? srtPath : null;
-          if (resolvedSrt) {
-            return importSRTToPremiere(resolvedSrt);
-          } else {
-            throw new Error('No SRT path produced by transcription');
+          const srtPath = transcript?.srtPath || transcript?.srt || ((transcript && transcript.jsonPath) ? transcript.jsonPath.replace('.json', '.srt') : null);
+          const wordTimingsPath = transcript?.wordTimingsPath || (transcript?.wordTimingsPath ? transcript.wordTimingsPath : null);
+          let chain = Promise.resolve();
+          if (srtPath) chain = chain.then(() => importSRTToPremiere(srtPath));
+          if (wordTimingsPath) chain = chain.then(() => importWordTimingsToPremiere(wordTimingsPath));
+          if (!srtPath && !wordTimingsPath) {
+            throw new Error('No SRT or word timings produced by transcription');
           }
+          return chain;
         })
         .then(() => {
           setProgress(100);

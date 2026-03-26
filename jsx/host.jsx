@@ -51,10 +51,26 @@ var AI_Caption_Pro = (function(){
     }
   }
 
+  // Word timings API (Phase 2)
+  function importWordTimings(wordTimingsPath) {
+    try {
+      var f = new File(wordTimingsPath);
+      if (!f.exists) return 'ERROR: Word timings file not found';
+      f.open('r');
+      var data = f.read();
+      f.close();
+      // TODO: parse JSON here and apply timings in Premiere
+      return 'IMPORT_OK';
+    } catch (e) {
+      return 'ERROR:' + (e ? e.toString() : 'Unknown error');
+    }
+  }
+
   // Expose public API
   return {
     detectActiveSequence: detectActiveSequence,
     exportActiveSequenceAudio: exportActiveSequenceAudio,
-    importSRT: importSRT
+    importSRT: importSRT,
+    importWordTimings: importWordTimings
   };
 })();
