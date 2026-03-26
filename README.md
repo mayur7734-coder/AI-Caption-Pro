@@ -1,4 +1,4 @@
-AI Caption Pro
+AI Caption Pro v1 Setup
 
 Production-ready CEP panel for Adobe Premiere Pro (CEP) with optional After Effects support.
 
