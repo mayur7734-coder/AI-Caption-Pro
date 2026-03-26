@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.opencode.aicappro" ExtensionBundleVersion="1.0.0" ExtensionBundleName="AI Caption Pro" ExtensionBundleVendor="OpenCode">
+  <RuntimeList>
+    <Runtime CodePage="437" Language="en_US">
+      <ScriptPath>./main.js</ScriptPath>
+      <MainPath>./AI-Caption-Pro/index.html</MainPath>
+      <ImagesPath>./assets</ImagesPath>
+    </Runtime>
+  </RuntimeList>
+</ExtensionManifest>

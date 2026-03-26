@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Caption Pro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- CEP panel runtime (CSInterface) is provided by the host environment -->
+  <script src="./CSInterface.js"></script>
+  <script defer src="main.js"></script>
+  <style>
+    /* Inline fallback styles in case CSS fails to load quickly */
+    :root { --bg: #0b0b12; --card: #141823; --text: #e8e8ef; --muted: #a6a6ad; --accent: #6ae3ff; }
+  </style>
+</head>
+<body>
+  <div class="container" id="panelRoot">
+    <header class="header">
+      <h1 class="title">AI Caption Pro</h1>
+      <p class="subtitle">Offline subtitle generator for Premiere Pro (CEP panel) with optional After Effects support</p>
+    </header>
+
+    <section class="panel-section">
+      <div class="field-row">
+        <label class="field-label">Select Sequence</label>
+        <button id="detectBtn" class="btn btn-secondary">Detect Active Sequence</button>
+        <span id="sequenceName" class="sequence-name" title="Active sequence name"></span>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <div class="field-row">
+        <label class="field-label" for="langSel">Language</label>
+        <select id="langSel" class="select">
+          <option value="auto">Auto</option>
+          <option value="hi">Hindi</option>
+          <option value="gu">Gujarati</option>
+          <option value="hinglish">Hinglish</option>
+          <option value="gujlish">Gujlish</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="styleSel">Style</label>
+        <select id="styleSel" class="select">
+          <option value="reels">Reels</option>
+          <option value="clean">Clean</option>
+          <option value="bold">Bold</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <div class="actions">
+        <button id="generateBtn" class="btn btn-primary">Generate Captions</button>
+      </div>
+      <div class="loader" id="loader" aria-label="loading" hidden>
+        <div class="spinner"></div>
+      </div>
+      <div class="progress" aria-label="progress" hidden>
+        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+      </div>
+      <div id="status" class="status" aria-live="polite">Idle</div>
+    </section>
+
+    <section class="panel-section">
+      <div class="hint">Note: This panel runs entirely offline using Whisper. No network calls are made.</div>
+    </section>
+  </div>
+</body>
+</html>
