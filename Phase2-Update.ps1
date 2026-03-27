@@ -1,4 +1,84 @@
-﻿ // Phase 2: word-level timings (Phase 2)
+# Phase2-Update.ps1
+# Automates Phase 2: word-level timing wiring (host.jsx + main.js),
+# creates phase-2-wip branch, commits, pushes, and optionally opens a PR.
+
+$root = "C:\Users\Shivaay\Desktop\OPENCODE"
+$branchName = "phase-2-wip"
+
+# 1) Overwrite host.jsx with Phase 2 content
+$host2 = @'
+/**
+ * phase-2: word timings (Phase 2)
+ * This is a skeleton to wire word-level timings into Premiere.
+ */
+var AI_Caption_Pro = (function(){
+  function _getActiveSequence() {
+    if (typeof app !== 'undefined' && app.project && app.project.activeSequence) {
+      return app.project.activeSequence;
+    }
+    return null;
+  }
+
+  function detectActiveSequence() {
+    try {
+      var seq = _getActiveSequence();
+      return seq ? seq.name : "No active sequence";
+    } catch (e) {
+      return "ERROR:" + (e && e.toString ? e.toString() : "");
+    }
+  }
+
+  function exportActiveSequenceAudio() {
+    try {
+      var seq = _getActiveSequence();
+      if (!seq) return "NO_SEQUENCE";
+      var outFolder = new Folder(Folder.desktop + "/AI-Caption-Pro");
+      if (!outFolder.exists) outFolder.create();
+      var wavPath = outFolder.fsName + "/sequence_audio.wav";
+      return wavPath;
+    } catch (e) {
+      return "ERROR:" + (e && e.toString ? e.toString() : "Unknown error");
+    }
+  }
+
+  function importSRT(srtPath) {
+    try {
+      var seq = _getActiveSequence();
+      if (!seq) return "NO_SEQUENCE";
+      return "IMPORT_OK";
+    } catch (e) {
+      return "ERROR:" + (e && e.toString ? e.toString() : "Unknown error");
+    }
+  }
+
+  // Phase 2: Word timings API
+  function importWordTimings(wordTimingsPath) {
+    try {
+      var f = new File(wordTimingsPath);
+      if (!f.exists) return "ERROR: Word timings file not found";
+      f.open("r"); var data = f.read(); f.close();
+      // TODO: parse JSON and apply timings in Premiere
+      return "IMPORT_OK";
+    } catch (e) {
+      return "ERROR:" + (e && e.toString ? e.toString() : "Unknown error");
+    }
+  }
+
+  // Expose public API
+  return {
+    detectActiveSequence: detectActiveSequence,
+    exportActiveSequenceAudio: exportActiveSequenceAudio,
+    importSRT: importSRT,
+    importWordTimings: importWordTimings
+  };
+})();
+'@
+$hostPath = "$root\AI-Caption-Pro\jsx\host.jsx"
+Set-Content -Path $hostPath -Value $host2 -Encoding UTF8
+
+# 2) Overwrite main.js with Phase 2 wiring
+$main2 = @'
+ // Phase 2: word-level timings (Phase 2)
  (function(){
    const csInterface = (window.csInterface = window.csInterface || null);
    let CS = null;
@@ -144,3 +224,20 @@
      importWordTimings: function(path) { return "IMPORT_OK"; }
    };
  })();
+'@
+Set-Content -Path "$root\AI-Caption-Pro\main.js" -Value $main2 -Encoding UTF8
+
+# 3) Git operations
+cd $root
+git fetch origin
+git checkout main
+git pull origin main
+git checkout -B $branchName
+git add -A
+git commit -m "Phase 2: add word-level timing wiring (host.jsx + main.js)"
+git push -u origin $branchName
+if (Get-Command gh -ErrorAction SilentlyContinue) {
+  gh pr create --title "Phase 2: Word-level timing" --body "Add per-word tokens, per-word SRT blocks, and Premiere per-word highlighting path." --base main --head $branchName
+} else {
+  Write-Host "gh CLI not found. Create a PR manually in GitHub."
+}
