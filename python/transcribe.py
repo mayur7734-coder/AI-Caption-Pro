@@ -56,6 +56,20 @@ def main():
     json_path = out_dir / (audio_path.stem + '.json')
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(json_out, f, ensure_ascii=False, indent=2)
+    # Word timings: write per-word timing data to a separate JSON file
+    word_timings_path = out_dir / (audio_path.stem + '_words.json')
+    words_list = []
+    for seg in result.get('segments', []):
+        if not isinstance(seg, dict):
+            continue
+        for w in seg.get('words', []):
+            words_list.append({
+                "start": w.get('start', 0),
+                "end": w.get('end', 0),
+                "word": w.get('word', w.get('text',''))
+            })
+    with open(word_timings_path, 'w', encoding='utf-8') as wf:
+        json.dump({"segments": result.get('segments', []), "words": words_list}, wf, ensure_ascii=False, indent=2)
 
     srt_path = out_dir / (audio_path.stem + '.srt')
     # Build SRT with simple per-segment timing; also derive word-by-word timings as a sub‑set
@@ -91,7 +105,9 @@ def main():
     payload = {
         "jsonPath": str(json_path),
         "srtPath": str(srt_path),
-        "segments": result.get('segments', [])
+        "wordTimingsPath": str(word_timings_path),
+        "segments": result.get('segments', []),
+        "words": words_list
     }
     print(json.dumps(payload))
 
